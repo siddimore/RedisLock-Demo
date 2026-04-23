@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributed-lock-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: distributed-lock-demo
+  template:
+    metadata:
+      labels:
+        app: distributed-lock-demo
+    spec:
+      containers:
+        - name: app
+          image: distributed-lock-demo:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: REDIS_ADDR
+              value: "redis:6379"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributed-lock-demo
+spec:
+  type: NodePort
+  selector:
+    app: distributed-lock-demo
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080
